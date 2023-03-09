@@ -24,7 +24,7 @@ def test(test_loader, network, criterion, device):
         for datum in test_loader:
             x = datum.pos.to(device)
             h = datum.x.to(device)
-            y = datum.y.to(device) 
+            y = torch.stack(list(datum.y.values())).to(device)
             edge_index = datum.edge_index.to(device)
             batch = datum.batch.to(device)
 
@@ -50,12 +50,15 @@ def train(train_loader, test_loader, network, num_epochs, init_lr, batch_size, e
             # Move tensors to the configured device
             x = datum.pos.to(device)
             h = datum.x.to(device)
-            y = datum.y.to(device) 
+
+            y = torch.stack(list(datum.y.values())).transpose(0,1).to(device)
+
             edge_index = datum.edge_index.to(device)
             batch = datum.batch.to(device)
             
             # Forward pass
             outputs = network(h, x, edge_index, batch)
+
             loss = criterion(outputs[0], y)
             
             # Backward and optimize

@@ -4,13 +4,13 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-periodic_table = pd.read_csv('periodic_table.csv')
+periodic_table = pd.read_csv('data/periodic_table.csv')
 
 # Find the largest element in the dataset
 # Returns the atomic number of the largest element
 def get_largest_element(df):
     largest_element = 0
-    for entry in df:
+    for idx, entry in df.iterrows():
         struct = entry.structure
         for site in struct._sites:
             symbol = str(list(site._species._data.keys())[0])
@@ -59,14 +59,14 @@ def get_features_and_coords(df):
             coords = site._frac_coords
             coord_matrix.append(coords)
 
-        coord_matrix = np.array(coord_matrix)
-        feature_matrix = np.array(feature_matrix)
+        coord_matrix = torch.FloatTensor(np.array(coord_matrix))
+        feature_matrix = torch.FloatTensor(np.array(feature_matrix))
 
         # Labels
         labels = {}
         for col in df.columns:
             if col != 'structure':
-                labels[col] = entry[col]
+                labels[col] = torch.tensor(entry[col])
 
         if (feature_matrix is not None) and (len(feature_matrix) > 1): 
             edge_index=make_edge_indices(entry)
@@ -74,4 +74,4 @@ def get_features_and_coords(df):
                 datum = Data(x=feature_matrix, edge_index=edge_index, y=labels, pos=coord_matrix)
                 data.append(datum)
 
-    return data
+    return data, largest_element
