@@ -5,3 +5,6 @@ torch_geometric
 numpy
 tqdm
 sklearn
+qml
+dscribe
+ase

@@ -4,6 +4,12 @@ from sklearn.model_selection import train_test_split
 from torch_geometric.loader import DataLoader
 from tqdm import tqdm
 
+# matminer datasets: https://hackingmaterials.lbl.gov/matminer/dataset_summary.html
+
+# BoltzTraP documentation: https://hackingmaterials.lbl.gov/matminer/dataset_summary.html#boltztrap-mp
+# MatBench documentation:  https://hackingmaterials.lbl.gov/automatminer/datasets.html#
+ 
+
 def get_boltztrap_data():
     df = load_dataset("boltztrap_mp")
     df = df.drop(columns=['mpid', 'formula'])
