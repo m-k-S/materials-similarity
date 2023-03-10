@@ -9,7 +9,6 @@ from tqdm import tqdm
 # BoltzTraP documentation: https://hackingmaterials.lbl.gov/matminer/dataset_summary.html#boltztrap-mp
 # MatBench documentation:  https://hackingmaterials.lbl.gov/automatminer/datasets.html#
  
-
 def get_boltztrap_data():
     df = load_dataset("boltztrap_mp")
     df = df.drop(columns=['mpid', 'formula'])

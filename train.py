@@ -24,7 +24,7 @@ def test(test_loader, network, criterion, device):
         for datum in test_loader:
             x = datum.pos.to(device)
             h = datum.x.to(device)
-            y = torch.stack(list(datum.y.values())).to(device)
+            y = torch.stack(list(datum.y.values())).transpose(0, 1).to(device)
             edge_index = datum.edge_index.to(device)
             batch = datum.batch.to(device)
 
@@ -35,17 +35,17 @@ def test(test_loader, network, criterion, device):
 
         return total_mse / len(test_loader)
 
-def train(train_loader, test_loader, network, num_epochs, init_lr, batch_size, eval_interval, device):
+def train(train_loader, test_loader, network, num_epochs, init_lr, eval_interval, device):
     criterion = nn.MSELoss().to(device)
     optimizer = torch.optim.Adam(network.parameters(), lr=init_lr)
     scheduler = LinearSchedule(optimizer, num_epochs, warmup_steps=20)
 
-    total_step = (len(train_loader) / batch_size)
+    total_step = len(train_loader)
 
     train_losses = []
     test_accuracies = []
 
-    for epoch in range(num_epochs):
+    for epoch in range(1, num_epochs+1):
         for i, datum in enumerate(train_loader):  
             # Move tensors to the configured device
             x = datum.pos.to(device)
@@ -69,13 +69,13 @@ def train(train_loader, test_loader, network, num_epochs, init_lr, batch_size, e
             store_loss = loss.clone().detach()
             train_losses.append(store_loss)
 
-            print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, i+1, total_step, loss.item()))
+            print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch, num_epochs, i+1, total_step, loss.item()))
 
             if epoch % eval_interval == 0:
                 with torch.no_grad():
                     # Get the accuracy of the model on the test set
                     test_mse = test(test_loader, network, criterion, device)
-                    print ('Epoch [{}/{}], Test MSE: {:.4f}'.format(epoch+1, num_epochs, test_mse))
+                    print ('Epoch [{}/{}], Test MSE: {:.4f}'.format(epoch, num_epochs, test_mse))
                     test_accuracies.append(test_mse)
 
         scheduler.step()

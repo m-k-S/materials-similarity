@@ -17,11 +17,11 @@ def average_local_property_similarity_continuous(embedding, property, k=10):
     alps = [(1/(k-1)) * (sum([property[indices[i, j]] for j in range(1, k)])) for i in range(len(embedding))]
 
     # Return the similarity scores
-    return alps
+    return torch.tensor(alps)
 
 def distinguishability(embedding, property, k=10):
     alps = average_local_property_similarity_continuous(embedding, property, k)
-    return sum([1/(property[i] - alps[i]) for i in range(len(alps))])
+    return (1/len(embedding)) * sum([1/(abs(property[i] - alps[i])) for i in range(len(alps))])
 
 # properties is a tensor of shape (n_datapoints, n_properties)
 def transferability(embedding, properties, k=10):
@@ -33,7 +33,7 @@ def transferability(embedding, properties, k=10):
         sigma_prop = torch.std(prop, dim=0)
 
         y_hat = abs((alps - mu_prop) / sigma_prop) # (n_datapoints, 1)
-        per_prop_standardized.append(sum(y_hat))
+        per_prop_standardized.append((1/len(embedding)) * sum(y_hat))
     
     return sum(per_prop_standardized)
 
