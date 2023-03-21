@@ -36,8 +36,9 @@ def make_edge_indices(entry):
 # feature_matrix is a matrix of shape (n_nodes, n_features)
 # coord_matrix is a matrix of shape (n_nodes, 3)
 # label is a scalar
-def get_features_and_coords(df):
-    largest_element = get_largest_element(df)
+def get_features_and_coords(df, largest_element=None):
+    if largest_element is None:
+        largest_element = get_largest_element(df)
     data = []
 
     for idx, entry in tqdm(df.iterrows(), desc="Building material graphs"):

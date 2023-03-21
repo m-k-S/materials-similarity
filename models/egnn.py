@@ -121,7 +121,7 @@ class E_GCL(nn.Module):
         return h, coord, edge_attr
 
 class EGNN(nn.Module):
-    def __init__(self, in_node_nf, hidden_nf, out_node_nf, in_edge_nf=0, device='cpu', act_fn=nn.SiLU(), n_layers=4, residual=True, attention=False, normalize=False, tanh=False):
+    def __init__(self, in_node_nf, hidden_nf, out_node_nf, in_edge_nf=0, device='cpu', act_fn=nn.SiLU(), n_conv_layers=4, n_linear_layers=2, residual=True, attention=False, normalize=False, tanh=False):
         '''
         :param in_node_nf: Number of features for 'h' at the input
         :param hidden_nf: Number of hidden features
@@ -145,22 +145,28 @@ class EGNN(nn.Module):
         super(EGNN, self).__init__()
         self.hidden_nf = hidden_nf
         self.device = device
-        self.n_layers = n_layers
+        self.n_conv_layers = n_conv_layers
+        self.n_linear_layers = n_linear_layers
         self.embedding_in = nn.Linear(in_node_nf, self.hidden_nf)
-        for i in range(0, n_layers):
+        for i in range(0, n_conv_layers):
             self.add_module("gcl_%d" % i, E_GCL(self.hidden_nf, self.hidden_nf, self.hidden_nf, edges_in_d=in_edge_nf,
                                                 act_fn=act_fn, residual=residual, attention=attention,
                                                 normalize=normalize, tanh=tanh))
-        self.lin = nn.Linear(hidden_nf, out_node_nf)
-        
+        for j in range(0, n_linear_layers):
+            if j == n_linear_layers - 1:
+                self.add_module("lin_%d" % j, nn.Linear(hidden_nf, out_node_nf))
+            else: 
+                self.add_module("lin_%d" % j, nn.Linear(hidden_nf, hidden_nf))
+
         self.to(self.device)
 
     def forward(self, h, x, edge_index, batch, edge_attr=None):
         h = self.embedding_in(h)
-        for i in range(0, self.n_layers):
+        for i in range(0, self.n_conv_layers):
             h, x, _ = self._modules["gcl_%d" % i](h, edge_index, x, edge_attr=edge_attr)
         out = global_mean_pool(h, batch)  # [batch_size, hidden_channels]
         out = F.dropout(out, p=0.5, training=self.training)
-        out = self.lin(out)
+        for j in range(0, self.n_linear_layers):
+            out = self._modules["lin_%d" % j](out)
 
         return out, x

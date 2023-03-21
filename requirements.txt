@@ -1,10 +1,12 @@
 pandas
-torch
+torch==1.13.1
 matminer
 torch_geometric
 numpy
 tqdm
 sklearn
-qml
 dscribe
 ase
+xgboost
+torch_sparse==0.6.16
+torch_scatter==2.1.1

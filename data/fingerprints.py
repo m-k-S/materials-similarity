@@ -9,25 +9,9 @@ from tqdm import tqdm
 
 periodic_table = pd.read_csv('data/periodic_table.csv')
 
-def get_largest_element(df):
-    largest_element = 0
-    for idx, entry in df.iterrows():
-        struct = entry.structure
-        for site in struct._sites:
-            symbol = str(list(site._species._data.keys())[0])
-            atomic_number = periodic_table.AtomicNumber[periodic_table['Symbol'] == symbol].values[-1]
-            if atomic_number > largest_element:
-                largest_element = atomic_number
-    return largest_element
-
-def get_fingerprints(df, rcut=6.0, nmax=5, lmax=2):
-    max_lattice = max([len(i._sites) for i in df.structure])
-    max_element = get_largest_element(df)
-    data = []
-
+def get_fingerprints(df, rcut=5.0, nmax=4, lmax=1):
     ase_structures = []
-    labels_full = []
-    # fchl = []
+    labels = {k: [] for k in df.columns if k != 'structure'}
 
     species = set()
     for idx, entry in tqdm(df.iterrows(), desc="Building materials fingerprints"):
@@ -46,20 +30,14 @@ def get_fingerprints(df, rcut=6.0, nmax=5, lmax=2):
             atomic_number = periodic_table.AtomicNumber[periodic_table['Symbol'] == symbol].values[-1]
             atomic_numbers.append(atomic_number)
 
-        # FCHL
-        # fchl_embedding = fchl.generate_representation(coord_matrix, atomic_numbers, cell=struct._lattice._matrix, max_size=max_lattice, neighbors=100).flatten() 
-        # fchl.append(fchl_embedding)
-
         # ASE Structure
         ase_structure = Atoms(symbols=symbols, positions=coord_matrix, cell=struct._lattice._matrix) 
         ase_structures.append(ase_structure)
         species.update(ase_structure.get_chemical_symbols())
 
-        labels = {}
         for col in df.columns:
             if col != 'structure':
-                labels[col] = torch.tensor(entry[col])
-        labels_full.append(labels)
+                labels[col].append(entry[col])
 
     # SOAP
     soap = SOAP(
@@ -78,17 +56,17 @@ def get_fingerprints(df, rcut=6.0, nmax=5, lmax=2):
         species=species,
         k1 = {
             "geometry": {"function": "atomic_number"},
-            "grid": {"min": 1, "max": 10, "sigma": 0.1, "n": 10}
+            "grid": {"min": 1, "max": 3, "sigma": 0.1, "n": 3}
         },
         k2 = {
             "geometry": {"function": "inverse_distance"},
-            "grid": {"min": 0.1, "max": 2, "sigma": 0.1, "n": 10},
-            "weighting": {"function": "exp", "r_cut": 6, "threshold": 1e-2}
+            "grid": {"min": 0.1, "max": 2, "sigma": 0.1, "n": 3},
+            "weighting": {"function": "exp", "r_cut": 3, "threshold": 1e-2}
         },  
         k3 = {
             "geometry": {"function": "angle"},
-            "grid": {"min": 0, "max": 180, "sigma": 5, "n": 10},
-            "weighting" : {"function": "exp", "r_cut": 6, "threshold": 1e-3}
+            "grid": {"min": 0, "max": 180, "sigma": 5, "n": 2},
+            "weighting" : {"function": "exp", "r_cut": 3, "threshold": 1e-3}
         },
         periodic=True,
         normalization="none"

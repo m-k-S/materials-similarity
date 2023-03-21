@@ -1,7 +1,7 @@
 import torch
 from torch_geometric.nn import global_mean_pool
 
-def get_embedding_layer_egnn(network, n_layers, dataloader, device, save_path=False):
+def extract_features_egnn(network, n_layers, dataloader, device, save_path=False):
     embedding = []
     with torch.no_grad():
         for datum in dataloader:
