@@ -82,7 +82,14 @@ def train(train_loader, test_loader, network, num_epochs, init_lr, eval_interval
 
     return train_losses, test_error
 
-def transfer(train_loader, test_loader, network, n_linear_layers, num_epochs, init_lr, eval_interval, device):
+def transfer(train_loader, test_loader, network, n_linear_layers, hidden_nf, out_node_nf, num_epochs, init_lr, eval_interval, device):
+    # Reset layers
+    for l in range(n_linear_layers):
+        if l == n_linear_layers - 1:
+            network._modules["lin_%d" % l] = nn.Linear(hidden_nf, out_node_nf)
+        else: 
+            network._modules["lin_%d" % l] = nn.Linear(hidden_nf, hidden_nf)
+
     for param in network.parameters():
         param.requires_grad = False
     for l in range(n_linear_layers):

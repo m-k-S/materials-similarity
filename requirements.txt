@@ -10,3 +10,5 @@ ase
 xgboost
 torch_sparse==0.6.16
 torch_scatter==2.1.1
+pydantic==1.10.2
+g2p-en==2.1.0
