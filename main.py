@@ -35,6 +35,9 @@ df = mp.get_boltztrap_data()
 train_loader, test_loader, largest_element = mp.make_graphs(df, batch_size, feature_size=94)
 n_feat = largest_element
 
+print ("Done processing graphs")
+print ("Number of materials: {}".format(len(train_loader)))
+
 egnn = EGNN(in_node_nf=n_feat, hidden_nf=hidden_nf, out_node_nf=n_labels, in_edge_nf=0, device=device, normalize=True, n_conv_layers=n_conv_layers, n_linear_layers=n_linear_layers).to(device)
 
 print ("Training EGNN on Boltztrap dataset")
