@@ -55,6 +55,8 @@ def train(train_loader, test_loader, network, num_epochs, init_lr, eval_interval
 
             edge_index = datum.edge_index.to(device)
             batch = datum.batch.to(device)
+
+            print (h.dtype, x.dtype, y.dtype, edge_index.dtype, batch.dtype)
             
             # Forward pass
             outputs = network(h, x, edge_index, batch)
