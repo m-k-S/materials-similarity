@@ -10,12 +10,12 @@ from tqdm import tqdm
 # MatBench documentation:  https://hackingmaterials.lbl.gov/automatminer/datasets.html#
  
 def get_boltztrap_data():
-    df = load_dataset("boltztrap_mp")
+    df = load_dataset("boltztrap_mp", data_home="./data")
     df = df.drop(columns=['mpid', 'formula'])
     return df
 
 def get_matbench_jdft2d_data():
-    df = load_dataset("matbench_jdft2d")
+    df = load_dataset("matbench_jdft2d", data_home="./data")
     return df
 
 def make_graphs(df, batch_size, feature_size=None):
