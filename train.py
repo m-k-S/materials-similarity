@@ -24,7 +24,7 @@ def test(test_loader, network, criterion, device):
         for datum in test_loader:
             x = datum.pos.to(device)
             h = datum.x.to(device)
-            y = torch.stack(list(datum.y.values())).transpose(0, 1).to(device)
+            y = torch.stack(list(datum.y.values())).transpose(0, 1).to(torch.float32).to(device)
             edge_index = datum.edge_index.to(device)
             batch = datum.batch.to(device)
 
@@ -51,12 +51,10 @@ def train(train_loader, test_loader, network, num_epochs, init_lr, eval_interval
             x = datum.pos.to(device)
             h = datum.x.to(device)
 
-            y = torch.stack(list(datum.y.values())).transpose(0,1).to(device)
+            y = torch.stack(list(datum.y.values())).transpose(0,1).to(torch.float32).to(device)
 
             edge_index = datum.edge_index.to(device)
             batch = datum.batch.to(device)
-
-            print (h.dtype, x.dtype, y.dtype, edge_index.dtype, batch.dtype)
             
             # Forward pass
             outputs = network(h, x, edge_index, batch)
@@ -113,7 +111,7 @@ def transfer(train_loader, test_loader, network, n_linear_layers, hidden_nf, out
             x = datum.pos.to(device)
             h = datum.x.to(device)
 
-            y = torch.stack(list(datum.y.values())).transpose(0,1).to(device)
+            y = torch.stack(list(datum.y.values())).to(torch.float32).transpose(0,1).to(device)
 
             edge_index = datum.edge_index.to(device)
             batch = datum.batch.to(device)
