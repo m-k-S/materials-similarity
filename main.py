@@ -35,23 +35,23 @@ df = mp.get_boltztrap_data()
 train_loader, test_loader, largest_element = mp.make_graphs(df, batch_size, feature_size=94)
 n_feat = largest_element
 
-print ("Done processing graphs")
-print ("Number of materials: {}".format(len(train_loader)))
+print ("Done processing graphs", flush=True)
+print ("Number of materials: {}".format(len(train_loader)), flush=True)
 
 egnn = EGNN(in_node_nf=n_feat, hidden_nf=hidden_nf, out_node_nf=n_labels, in_edge_nf=0, device=device, normalize=True, n_conv_layers=n_conv_layers, n_linear_layers=n_linear_layers).to(device)
 
-print ("Training EGNN on Boltztrap dataset")
+print ("Training EGNN on Boltztrap dataset", flush=True)
 train_loss, test_loss = train(train_loader, test_loader, egnn, num_epochs, init_lr, eval_interval, device)
 
-print ("Computing SOAP and MBTR fingerprints")
+print ("Computing SOAP and MBTR fingerprints", flush=True)
 soap, mbtr, labels = get_fingerprints(df)
 print (soap.shape)
 print (mbtr.shape)
 
-print ("Extracting features from EGNN")
+print ("Extracting features from EGNN", flush=True)
 egnn_embedding = extract_features_egnn(egnn, n_conv_layers, train_loader, device)
 
-print ("Computing metrics")
+print ("Computing metrics", flush=True)
 egnn_distinguishability = metrics.distinguishability(egnn_embedding, torch.tensor(df.pf_n.values))
 egnn_transferability = metrics.transferability(egnn_embedding, torch.tensor(df[[i for i in df.columns if i != 'structure']].values))
 
@@ -61,14 +61,14 @@ soap_transferability = metrics.transferability(soap, torch.tensor(df[[i for i in
 mbtr_distinguishability = metrics.distinguishability(mbtr, torch.tensor(df.pf_n.values))
 mbtr_transferability = metrics.transferability(mbtr, torch.tensor(df[[i for i in df.columns if i != 'structure']].values))
 
-print ("EGNN Distinguishability: {}".format(egnn_distinguishability))
-print ("EGNN Transferability: {}".format(egnn_transferability))
+print ("EGNN Distinguishability: {}".format(egnn_distinguishability), flush=True)
+print ("EGNN Transferability: {}".format(egnn_transferability), flush=True)
 
-print ("SOAP Distinguishability: {}".format(soap_distinguishability))
-print ("SOAP Transferability: {}".format(soap_transferability))
+print ("SOAP Distinguishability: {}".format(soap_distinguishability), flush=True)
+print ("SOAP Transferability: {}".format(soap_transferability), flush=True)
 
-print ("MBTR Distinguishability: {}".format(mbtr_distinguishability))
-print ("MBTR Transferability: {}".format(mbtr_transferability))
+print ("MBTR Distinguishability: {}".format(mbtr_distinguishability), flush=True)
+print ("MBTR Transferability: {}".format(mbtr_transferability), flush=True)
 
 labels_as_array = np.stack([np.array(v) for v in labels.values()]).T
 soap_train, soap_test, mbtr_train, mbtr_test, labels_train, labels_test = train_test_split(soap, mbtr, labels_as_array, test_size=0.2, random_state=42)
@@ -112,9 +112,9 @@ jdft2d_egnn_distinguishability_untrained = metrics.distinguishability(jdft2d_emb
 jdft2d_soap_distinguishability = metrics.distinguishability(soap_jdft2d, torch.tensor(df_jdft2d.exfoliation_en.values))
 jdft2d_mbtr_distinguishability = metrics.distinguishability(mbtr_jdft2d, torch.tensor(df_jdft2d.exfoliation_en.values))
 
-print ("JDFT2D EGNN Distinguishability (untrained): {}".format(jdft2d_egnn_distinguishability_untrained))
-print ("JDFT2D SOAP Distinguishability: {}".format(jdft2d_soap_distinguishability))
-print ("JDFT2D MBTR Distinguishability: {}".format(jdft2d_mbtr_distinguishability))
+print ("JDFT2D EGNN Distinguishability (untrained): {}".format(jdft2d_egnn_distinguishability_untrained), flush=True)
+print ("JDFT2D SOAP Distinguishability: {}".format(jdft2d_soap_distinguishability), flush=True)
+print ("JDFT2D MBTR Distinguishability: {}".format(jdft2d_mbtr_distinguishability), flush=True)
 
 transfer_train_loss, transfer_test_loss = transfer(train_loader_jdft2d, test_loader_jdft2d, egnn, n_linear_layers, hidden_nf, n_labels_jdft2d, num_epochs, init_lr, eval_interval, device)
 
@@ -143,14 +143,14 @@ for k,v in regressors_jdft2d.items():
 
 mse_jdft2d['EGNN'] = min(transfer_test_loss)
 for k,v in mse.items():
-    print ("{} MSE: {}".format(k, v))
+    print ("{} MSE: {}".format(k, v), flush=True)
 
 jdft2d_embedding = extract_features_egnn(egnn, n_conv_layers, train_loader_jdft2d, device)
 
 # Post-transfer learning
 
 jdft2d_egnn_distinguishability_transfer = metrics.distinguishability(jdft2d_embedding, torch.tensor(df_jdft2d.exfoliation_en.values))
-print ('JDFT2D EGNN Distinguishability (transfer): {}'.format(jdft2d_egnn_distinguishability_transfer))
+print ('JDFT2D EGNN Distinguishability (transfer): {}'.format(jdft2d_egnn_distinguishability_transfer), flush=True)
 
 # DFT2D without transfer learning
 # Trains from scratch
@@ -175,9 +175,9 @@ train_loss_jdft2d, test_loss_jdft2d = train(train_loader_jdft2d, test_loader_jdf
 
 jdft2d_embedding_scratch = extract_features_egnn(egnn_2, n_conv_layers, train_loader_jdft2d, device)
 
-print (min(test_loss_jdft2d))
+print (min(test_loss_jdft2d), flush=True)
 jdft2d_egnn_distinguishability_scratch = metrics.distinguishability(jdft2d_embedding_scratch, torch.tensor(df_jdft2d.exfoliation_en.values))
-print('JDFT2D EGNN Distinguishability (scratch): {}'.format(jdft2d_egnn_distinguishability_scratch))
+print('JDFT2D EGNN Distinguishability (scratch): {}'.format(jdft2d_egnn_distinguishability_scratch), flush=True)
 
 metrics_dict = {
     'EGNN Distinguishability': egnn_distinguishability,

@@ -41,7 +41,7 @@ def get_features_and_coords(df, largest_element=None):
         largest_element = get_largest_element(df)
     data = []
 
-    for idx in tqdm(range(len(df)), desc="Building material graphs"):
+    for idx in tqdm(range(len(df)), desc="Building material graphs", disable=True):
         entry = df.iloc[idx]
         struct = entry.structure
 
