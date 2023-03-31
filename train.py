@@ -71,12 +71,12 @@ def train(train_loader, test_loader, network, num_epochs, init_lr, eval_interval
 
             print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch, num_epochs, i+1, total_step, loss.item()), flush=True)
 
-            if epoch % eval_interval == 0:
-                with torch.no_grad():
-                    # Get the accuracy of the model on the test set
-                    test_mse = test(test_loader, network, criterion, device)
-                    print ('Epoch [{}/{}], Test MSE: {:.4f}'.format(epoch, num_epochs, test_mse), flush=True)
-                    test_error.append(test_mse)
+        if epoch % eval_interval == 0:
+            with torch.no_grad():
+                # Get the accuracy of the model on the test set
+                test_mse = test(test_loader, network, criterion, device)
+                print ('Epoch [{}/{}], Test MSE: {:.4f}'.format(epoch, num_epochs, test_mse), flush=True)
+                test_error.append(test_mse)
 
         scheduler.step()
 
