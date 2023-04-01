@@ -19,21 +19,21 @@ class LinearSchedule(LambdaLR):
 # Evaluate the model on the test set
 def test(test_loader, network, criterion, device):
     network.eval()
-    with torch.no_grad():
-        total_mse = 0
-        for datum in test_loader:
-            x = datum.pos.to(device)
-            h = datum.x.to(device)
-            y = torch.stack(list(datum.y.values())).transpose(0, 1).to(torch.float32).to(device)
-            edge_index = datum.edge_index.to(device)
-            batch = datum.batch.to(device)
 
-            outputs = network(h, x, edge_index, batch)
+    total_mse = 0
+    for datum in test_loader:
+        x = datum.pos.to(device)
+        h = datum.x.to(device)
+        y = torch.stack(list(datum.y.values())).transpose(0, 1).to(torch.float32).to(device)
+        edge_index = datum.edge_index.to(device)
+        batch = datum.batch.to(device)
 
-            mse = criterion(outputs[0], y)
-            total_mse += mse.item()
+        outputs = network(h, x, edge_index, batch)
 
-        return total_mse / len(test_loader)
+        mse = criterion(outputs[0], y)
+        total_mse += mse.detach().item()
+
+    return total_mse / len(test_loader)
 
 def train(train_loader, test_loader, network, num_epochs, init_lr, eval_interval, device):
     criterion = nn.MSELoss().to(device)
@@ -47,6 +47,8 @@ def train(train_loader, test_loader, network, num_epochs, init_lr, eval_interval
     test_error = []
 
     for epoch in range(1, num_epochs+1):
+        network.train()
+
         for i, datum in enumerate(train_loader):  
             # Move tensors to the configured device
             x = datum.pos.to(device)
@@ -108,6 +110,8 @@ def transfer(train_loader, test_loader, network, n_linear_layers, hidden_nf, out
     test_error = []
 
     for epoch in range(1, num_epochs+1):
+        network.train()
+
         for i, datum in enumerate(train_loader):  
             # Move tensors to the configured device
             x = datum.pos.to(device)
