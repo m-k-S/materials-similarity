@@ -120,6 +120,46 @@ class E_GCL(nn.Module):
 
         return h, coord, edge_attr
 
+class EGNN_BN(nn.Module):
+    def __init__(self, num_features, momentum=0.9, eps=1e-5):
+        super().__init__()
+
+        h_shape = (1, num_features)
+
+        self.gamma_h = nn.Parameter(torch.ones(h_shape))
+        self.beta_h = nn.Parameter(torch.zeros(h_shape))
+
+        self.momentum = momentum
+        self.eps = eps
+
+        self.register_buffer('moving_mean_h', torch.ones(h_shape))
+        self.register_buffer('moving_var_h', torch.ones(h_shape))
+
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        self.moving_var_h.fill_(1)
+
+    def forward(self, h):
+        if self.training:
+            var_h, mean_h = torch.var_mean(h, dim=0, keepdim=True, unbiased=False)
+
+            self.moving_mean_h.mul_(self.momentum)
+            self.moving_mean_h.add_((1 - self.momentum) * mean_h)
+            self.moving_var_h.mul_(self.momentum)
+            self.moving_var_h.add_((1 - self.momentum) * var_h)
+
+        else:
+            var_h = self.moving_var_h
+            mean_h = self.moving_mean_h
+            
+
+        h = (h - mean_h) * torch.rsqrt(var_h+self.eps)
+
+        out_h = h * self.gamma_h + self.beta_h
+
+        return out_h
+
 class EGNN(nn.Module):
     def __init__(self, in_node_nf, hidden_nf, out_node_nf, in_edge_nf=0, device='cpu', act_fn=nn.SiLU(), n_conv_layers=4, n_linear_layers=2, residual=True, attention=False, normalize=False, tanh=False):
         '''
@@ -152,6 +192,8 @@ class EGNN(nn.Module):
             self.add_module("gcl_%d" % i, E_GCL(self.hidden_nf, self.hidden_nf, self.hidden_nf, edges_in_d=in_edge_nf,
                                                 act_fn=act_fn, residual=residual, attention=attention,
                                                 normalize=normalize, tanh=tanh))
+            self.add_module("bn_%d" % i, EGNN_BN(self.hidden_nf, 3))
+
         for j in range(0, n_linear_layers):
             if j == n_linear_layers - 1:
                 self.add_module("lin_%d" % j, nn.Linear(hidden_nf, out_node_nf))
@@ -164,6 +206,7 @@ class EGNN(nn.Module):
         h = self.embedding_in(h)
         for i in range(0, self.n_conv_layers):
             h, x, _ = self._modules["gcl_%d" % i](h, edge_index, x, edge_attr=edge_attr)
+            h = self._modules["bn_%d" % i](h)
         out = global_mean_pool(h, batch)  # [batch_size, hidden_channels]
         out = F.dropout(out, p=0.5, training=self.training)
         for j in range(0, self.n_linear_layers):
