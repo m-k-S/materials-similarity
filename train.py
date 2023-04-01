@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from torch.optim.lr_scheduler import LambdaLR
+from torch.optim.lr_scheduler import LambdaLR, CosineAnnealingLR
 
 class LinearSchedule(LambdaLR):
     # Linear warmup and then linear decay learning rate scheduling
@@ -37,9 +37,10 @@ def test(test_loader, network, criterion, device):
 
 def train(train_loader, test_loader, network, num_epochs, init_lr, eval_interval, device):
     criterion = nn.MSELoss().to(device)
-    optimizer = torch.optim.Adam(network.parameters(), lr=init_lr)
-    scheduler = LinearSchedule(optimizer, num_epochs, warmup_steps=20)
-
+    optimizer = torch.optim.Adam(network.parameters(), lr=init_lr, weight_decay=1e-14)
+    # scheduler = LinearSchedule(optimizer, num_epochs, warmup_steps=20)
+    scheduler = CosineAnnealingLR(optimizer, num_epochs)
+    
     total_step = len(train_loader)
 
     train_losses = []
@@ -97,8 +98,9 @@ def transfer(train_loader, test_loader, network, n_linear_layers, hidden_nf, out
             param.requires_grad = True
 
     criterion = nn.MSELoss().to(device)
-    optimizer = torch.optim.Adam(network.parameters(), lr=init_lr)
-    scheduler = LinearSchedule(optimizer, num_epochs, warmup_steps=20)
+    optimizer = torch.optim.Adam(network.parameters(), lr=init_lr, weight_decay=1e-14)
+    # scheduler = LinearSchedule(optimizer, num_epochs, warmup_steps=20)
+    scheduler = CosineAnnealingLR(optimizer, num_epochs)
 
     total_step = len(train_loader)
 
