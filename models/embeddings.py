@@ -15,7 +15,7 @@ def extract_features_egnn(network, n_layers, dataloader, device, save_path=False
             e_batch = network.embedding_in(h)
             for i in range(0, n_layers):
                 e_batch, x, _ = network._modules["gcl_%d" % i](e_batch, edge_index, x)
-                e_batch = self._modules["bn_%d" % i](e_batch)
+                e_batch = network._modules["bn_%d" % i](e_batch)
             e_batch = global_mean_pool(e_batch, batch)  # [batch_size, hidden_channels]
 
             embedding.append(e_batch)
