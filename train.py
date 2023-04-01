@@ -39,8 +39,8 @@ def train(train_loader, test_loader, network, num_epochs, init_lr, eval_interval
     criterion = nn.MSELoss().to(device)
     optimizer = torch.optim.Adam(network.parameters(), lr=init_lr, weight_decay=1e-14)
     # scheduler = LinearSchedule(optimizer, num_epochs, warmup_steps=20)
-    scheduler = CosineAnnealingLR(optimizer, num_epochs)
-    
+    # scheduler = CosineAnnealingLR(optimizer, num_epochs)
+
     total_step = len(train_loader)
 
     train_losses = []
@@ -79,7 +79,7 @@ def train(train_loader, test_loader, network, num_epochs, init_lr, eval_interval
                 print ('Epoch [{}/{}], Test MSE: {:.4f}'.format(epoch, num_epochs, test_mse), flush=True)
                 test_error.append(test_mse)
 
-        scheduler.step()
+        # scheduler.step()
 
     return train_losses, test_error
 
@@ -100,7 +100,7 @@ def transfer(train_loader, test_loader, network, n_linear_layers, hidden_nf, out
     criterion = nn.MSELoss().to(device)
     optimizer = torch.optim.Adam(network.parameters(), lr=init_lr, weight_decay=1e-14)
     # scheduler = LinearSchedule(optimizer, num_epochs, warmup_steps=20)
-    scheduler = CosineAnnealingLR(optimizer, num_epochs)
+    # scheduler = CosineAnnealingLR(optimizer, num_epochs)
 
     total_step = len(train_loader)
 
@@ -140,6 +140,6 @@ def transfer(train_loader, test_loader, network, n_linear_layers, hidden_nf, out
                 print ('Epoch [{}/{}], Test MSE: {:.4f}'.format(epoch, num_epochs, test_mse), flush=True)
                 test_error.append(test_mse)
 
-        scheduler.step()
+        # scheduler.step()
 
     return train_losses, test_error

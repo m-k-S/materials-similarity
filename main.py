@@ -21,10 +21,10 @@ from data.graphs import get_features_and_coords
 import pickle
 
 # Hyperparameters
-hidden_nf = 32
+hidden_nf = 128
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 n_labels = 6
-n_conv_layers = 4
+n_conv_layers = 5
 n_linear_layers = 2
 init_lr = 1e-3
 eval_interval = 10
@@ -156,10 +156,10 @@ print ('JDFT2D EGNN Distinguishability (transfer): {}'.format(jdft2d_egnn_distin
 # Trains from scratch
 
 # Hyperparameters
-hidden_nf = 32
+hidden_nf = 128
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 n_labels = 1
-n_conv_layers = 4
+n_conv_layers = 5
 n_linear_layers = 2
 init_lr = 0.001
 eval_interval = 10
