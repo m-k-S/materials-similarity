@@ -28,7 +28,7 @@ n_conv_layers = 5
 n_linear_layers = 2
 init_lr = 1e-3
 eval_interval = 10
-batch_size = 8
+batch_size = 64
 num_epochs = 100
 
 df = mp.get_boltztrap_data()
@@ -163,7 +163,7 @@ n_conv_layers = 5
 n_linear_layers = 2
 init_lr = 0.001
 eval_interval = 10
-batch_size = 8
+batch_size = 16
 num_epochs = 100
 
 train_loader_jdft2d = DataLoader(train_set_jdft2d, batch_size=batch_size)
