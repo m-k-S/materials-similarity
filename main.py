@@ -24,12 +24,12 @@ import pickle
 hidden_nf = 128
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 n_labels = 6
-n_conv_layers = 5
+n_conv_layers = 7
 n_linear_layers = 2
 init_lr = 1e-3
 eval_interval = 10
 batch_size = 64
-num_epochs = 100
+num_epochs = 250
 
 df = mp.get_boltztrap_data()
 train_loader, test_loader, largest_element = mp.make_graphs(df, batch_size, feature_size=94)
@@ -38,7 +38,7 @@ n_feat = largest_element
 print ("Done processing graphs", flush=True)
 print ("Number of materials: {}".format(len(train_loader)), flush=True)
 
-egnn = EGNN(in_node_nf=n_feat, hidden_nf=hidden_nf, out_node_nf=n_labels, in_edge_nf=0, device=device, normalize=True, n_conv_layers=n_conv_layers, n_linear_layers=n_linear_layers).to(device)
+egnn = EGNN(in_node_nf=n_feat, hidden_nf=hidden_nf, out_node_nf=n_labels, in_edge_nf=0, device=device, attention=True, normalize=True, n_conv_layers=n_conv_layers, n_linear_layers=n_linear_layers).to(device)
 
 print ("Training EGNN on Boltztrap dataset", flush=True)
 train_loss, test_loss = train(train_loader, test_loader, egnn, num_epochs, init_lr, eval_interval, device)
@@ -159,7 +159,7 @@ print ('JDFT2D EGNN Distinguishability (transfer): {}'.format(jdft2d_egnn_distin
 hidden_nf = 128
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 n_labels = 1
-n_conv_layers = 5
+n_conv_layers = 7
 n_linear_layers = 2
 init_lr = 0.001
 eval_interval = 10
@@ -169,7 +169,7 @@ num_epochs = 100
 train_loader_jdft2d = DataLoader(train_set_jdft2d, batch_size=batch_size)
 test_loader_jdft2d = DataLoader(test_set_jdft2d, batch_size=batch_size)
 
-egnn_2 = EGNN(in_node_nf=n_feat, hidden_nf=hidden_nf, out_node_nf=n_labels, in_edge_nf=0, device=device, normalize=True, n_conv_layers=n_conv_layers, n_linear_layers=n_linear_layers).to(device)
+egnn_2 = EGNN(in_node_nf=n_feat, hidden_nf=hidden_nf, out_node_nf=n_labels, in_edge_nf=0, device=device, attention=True, normalize=True, n_conv_layers=n_conv_layers, n_linear_layers=n_linear_layers).to(device)
 
 train_loss_jdft2d, test_loss_jdft2d = train(train_loader_jdft2d, test_loader_jdft2d, egnn_2, num_epochs, init_lr, eval_interval, device)
 
