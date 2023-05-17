@@ -31,7 +31,7 @@ def test(test_loader, network, criterion, device):
         outputs = network(h, x, edge_index, batch)
 
         mse = criterion(outputs[0], y)
-        total_mse += mse.detach().item()
+        total_mse += mse.detach.item()
 
     return total_mse / len(test_loader)
 
@@ -72,7 +72,7 @@ def train(train_loader, test_loader, network, num_epochs, init_lr, eval_interval
             store_loss = loss.clone().detach()
             train_losses.append(store_loss)
 
-            print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch, num_epochs, i+1, total_step, loss.item()), flush=True)
+            # print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch, num_epochs, i+1, total_step, loss.item()), flush=True)
 
         if epoch % eval_interval == 0:
             with torch.no_grad():
