@@ -27,7 +27,7 @@ num_epochs = 250
 ### MATBENCH TRAINING ###
 
 df = mp.get_matbench_mp_e_form_data()
-train_loader, test_loader, largest_element = mp.make_graphs(df[:100], batch_size, feature_size=94)
+train_loader, test_loader, largest_element = mp.make_graphs(df, batch_size, feature_size=94)
 n_feat = largest_element
 
 print ("Done processing graphs", flush=True)
@@ -44,7 +44,7 @@ egnn_distinguishability = metrics.distinguishability(egnn_embedding, torch.tenso
 
 ### JDFT2D TRANSFER ###
 
-df_jdft2d = load_dataset("matbench_jdft2d")
+df_jdft2d = mp.get_matbench_jdft2d_data()
 n_labels_jdft2d = 1
 
 dataset_jdft2d, largest_element_jdft2d = get_features_and_coords(df_jdft2d)

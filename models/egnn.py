@@ -29,7 +29,7 @@ def unsorted_segment_sum(data, segment_ids, num_segments, normalization_factor, 
         norm.scatter_add_(0, segment_ids, data.new_ones(data.shape))
         norm[norm == 0] = 1
         result = result / norm
-    return 
+    return result
 
 
 class SinusoidsEmbeddingNew(nn.Module):

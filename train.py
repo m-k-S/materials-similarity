@@ -31,7 +31,7 @@ def test(test_loader, network, criterion, device):
         outputs = network(h, x, edge_index, batch)
 
         mse = criterion(outputs[0], y)
-        total_mse += mse.detach.item()
+        total_mse += mse.detach().item()
 
     return total_mse / len(test_loader)
 
